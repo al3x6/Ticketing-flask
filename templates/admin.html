@@ -3,18 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title>Admin</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <nav>
-        <a href="{{ url_for('home') }}">Accueil</a>
-        <a href="{{ url_for('submit_ticket') }}">Soumettre un Ticket</a>
         <a href="{{ url_for('logout') }}">Se déconnecter</a>
     </nav>
 
     <h1>Bienvenue, {{ current_user.username }} !</h1>
-    <br>
+
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
@@ -22,5 +20,13 @@
             {% endfor %}
         {% endif %}
     {% endwith %}
+    <div>
+        <ul>
+            {% for ticket in tickets %}
+                <li>{{ ticket.title }} - {{ ticket.priority }} - {{ ticket.description }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
 </body>
 </html>
