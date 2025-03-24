@@ -31,11 +31,11 @@ users = {
 
 @login_manager.user_loader
 def load_user(user_id):
-    return users.get("admin") if users["admin"].id == user_id else None
-#    for user in users.values():
-#        if user.id == user_id:
-#            return user
-#    return None
+    #return users.get("admin") if users["admin"].id == user_id else None
+    for user in users.values():
+        if user.id == user_id:
+            return user
+    return None
 
 
 ###################################### Route
