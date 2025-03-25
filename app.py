@@ -33,6 +33,7 @@ app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SECURE'] = False  # Mettre sur False en local si pas en HTTPS
 app.config['REMEMBER_COOKIE_HTTPONLY'] = True
 
+###################################### Base de données
 ########### Utilisateur
 class User(UserMixin, db.Model):
 
@@ -56,7 +57,7 @@ class Ticket(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
-    priority = db.Column(db.String(50), nullable=False)
+    priority = db.Column(db.String(50), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 ########### Initialisation de la base de données
@@ -77,8 +78,8 @@ with app.app_context():
 
     db.session.commit()
 
-###################################### Route
-########### Formulaire
+
+###################################### Formulaire
 # Formulaire de connexion sécurisé
 class LoginForm(FlaskForm):
     username = StringField('Nom d\'utilisateur', validators=[DataRequired()])
@@ -89,10 +90,16 @@ class LoginForm(FlaskForm):
 class TicketForm(FlaskForm):
     title = StringField('Titre', validators=[DataRequired()])
     description = TextAreaField('Description', validators=[DataRequired()])
-    priority = SelectField('Priorité', choices=[('Low', 'Low'), ('Medium', 'Medium'), ('High', 'High')])
+    #priority = SelectField('Priorité', choices=[('Low', 'Low'), ('Medium', 'Medium'), ('High', 'High')])
     submit = SubmitField('Soumettre')
+class UpdateTicketForm(FlaskForm):
+    title = StringField('Titre', validators=[DataRequired()])
+    description = TextAreaField('Description', validators=[DataRequired()])
+    priority = SelectField('Priorité', choices=[('Low', 'Low'), ('Medium', 'Medium'), ('High', 'High')])
+    submit = SubmitField('Mettre à jour')
 
-# Route de connexion (page d'accueil)
+###################################### Route
+########### page d'accueil
 @app.route('/', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -110,18 +117,12 @@ def login():
             flash("Nom d'utilisateur ou mot de passe incorrect", "danger")
     return render_template('index.html', form=form, message="Bienvenue sur Flask")
 
+########### Utilisateur
 # Page après connexion utilisateur
 @app.route('/home')
 @login_required
 def home():
     return render_template('home.html')
-
-# Page après connexion admin
-@app.route('/admin')
-@login_required
-def admin():
-    tickets = Ticket.query.all()
-    return render_template('admin.html', tickets=tickets)
 
 # Soumettre un ticket
 @app.route('/submit_ticket', methods=['GET', 'POST'])
@@ -132,7 +133,7 @@ def submit_ticket():
         new_ticket = Ticket(
             title=form.title.data,
             description=form.description.data,
-            priority=form.priority.data,
+            #priority=form.priority.data,
             user_id=current_user.id
         )
         db.session.add(new_ticket)
@@ -141,6 +142,30 @@ def submit_ticket():
         return redirect(url_for('home'))
     return render_template('submit_ticket.html', form=form)
 
+########### Admin
+# Page après connexion admin
+@app.route('/admin')
+@login_required
+def admin():
+    tickets = Ticket.query.all()
+    return render_template('admin.html', tickets=tickets)
+
+@app.route('/update/<int:ticket_id>', methods=['GET', 'POST'])
+@login_required
+def update_ticket(ticket_id):
+    ticket = Ticket.query.get_or_404(ticket_id)
+    form = UpdateTicketForm(obj=ticket)
+
+    if form.validate_on_submit():
+        ticket.title = form.title.data
+        ticket.description = form.description.data
+        ticket.priority = form.priority.data
+        db.session.commit()
+        flash("Ticket mis à jour avec succès !", "success")
+        return redirect(url_for('admin'))
+    return render_template('update_ticket.html', form=form)
+
+########### Déconnexion
 # Route de déconnexion
 @app.route('/logout')
 @login_required

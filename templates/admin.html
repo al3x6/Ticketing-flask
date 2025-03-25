@@ -20,13 +20,19 @@
             {% endfor %}
         {% endif %}
     {% endwith %}
-    <div>
-        <ul>
-            {% for ticket in tickets %}
-                <li>{{ ticket.title }} - {{ ticket.priority }} - {{ ticket.description }}</li>
-            {% endfor %}
-        </ul>
-    </div>
+    <br>
 
+    <div class="tickets-container">
+        {% for ticket in tickets %}
+            <div class="ticket">
+                <div class="ticket-content">
+                    <h2>{{ ticket.title }}</h2>
+                    <p><strong>Description:</strong> {{ ticket.description }}</p>
+                    <p><strong>Priorité:</strong> {{ ticket.priority }}</p>
+                </div>
+                <a href="{{ url_for('update_ticket', ticket_id=ticket.id) }}">✏️</a>
+            </div>
+        {% endfor %}
+    </div>
 </body>
 </html>

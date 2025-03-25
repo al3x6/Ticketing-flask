@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Soumettre un Ticket</title>
+    <title>Mettre à jour le Ticket</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <nav>
-        <a href="{{ url_for('home') }}">Accueil</a>
-        <a href="{{ url_for('submit_ticket') }}">Soumettre un Ticket</a>
+        <a href="{{ url_for('admin') }}">Retour</a>
         <a href="{{ url_for('logout') }}">Se déconnecter</a>
     </nav>
 
-    <h1>Soumettre un Ticket</h1>
+    <h1>Mettre à jour le Ticket</h1>
     <br>
+
     <form method="POST">
         {{ form.hidden_tag() }}
         <div>
@@ -25,11 +25,12 @@
             <label for="description">Description :</label>
             {{ form.description(id="description") }}
         </div>
-        <!--<div>
+        <div>
             <label for="priority">Priorité :</label>
-            {# {{ form.priority(id="priority") }} #}
-        </div>-->
-        <button type="submit">Soumettre</button>
+            {{ form.priority(id="priority") }}
+        </div>
+        <button type="submit">Mettre à jour</button>
     </form>
+
 </body>
 </html>
