@@ -122,12 +122,20 @@ def login():
 @app.route('/home')
 @login_required
 def home():
+    if current_user.is_admin: # Vérifie si l'utilisateur est un administrateur
+        flash("Vous n'avez pas les droits nécessaires pour accéder à cette page.", "danger")
+        return redirect(url_for('admin'))
+
     return render_template('home.html')
 
 # Soumettre un ticket
 @app.route('/submit_ticket', methods=['GET', 'POST'])
 @login_required
 def submit_ticket():
+    if current_user.is_admin: # Vérifie si l'utilisateur est un administrateur
+        flash("Vous n'avez pas les droits nécessaires pour accéder à cette page.", "danger")
+        return redirect(url_for('admin'))
+
     form = TicketForm()
     if form.validate_on_submit():
         new_ticket = Ticket(
@@ -147,12 +155,20 @@ def submit_ticket():
 @app.route('/admin')
 @login_required
 def admin():
+    if not current_user.is_admin: # Vérifie si l'utilisateur est un administrateur
+        flash("Vous n'avez pas les droits nécessaires pour accéder à cette page.", "danger")
+        return redirect(url_for('home'))
+
     tickets = Ticket.query.all()
     return render_template('admin.html', tickets=tickets)
 
 @app.route('/update/<int:ticket_id>', methods=['GET', 'POST'])
 @login_required
 def update_ticket(ticket_id):
+    if not current_user.is_admin: # Vérifie si l'utilisateur est un administrateur
+        flash("Vous n'avez pas les droits nécessaires pour accéder à cette page.", "danger")
+        return redirect(url_for('home'))
+
     ticket = Ticket.query.get_or_404(ticket_id)
     form = UpdateTicketForm(obj=ticket)
 
