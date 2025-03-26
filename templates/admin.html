@@ -27,8 +27,13 @@
             <div class="ticket">
                 <div class="ticket-content">
                     <h2>{{ ticket.title }}</h2>
-                    <p><strong>Description:</strong> {{ ticket.description }}</p>
-                    <p><strong>Priorité:</strong> {{ ticket.priority }}</p>
+                    <br>
+                    <p><strong>Description :</strong> {{ ticket.description }}</p>
+                    <br>
+                    <p><strong>Personne :</strong> {{ ticket.user.nom }} {{ ticket.user.prenom }}</p>
+                    <p><strong>Mail :</strong> {{ ticket.user.mail }}</p>
+                    <br>
+                    <p><strong>Priorité :</strong> {{ ticket.priority }}</p>
                 </div>
                 <a href="{{ url_for('update_ticket', ticket_id=ticket.id) }}">✏️</a>
             </div>

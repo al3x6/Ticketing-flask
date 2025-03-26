@@ -36,9 +36,11 @@ app.config['REMEMBER_COOKIE_HTTPONLY'] = True
 ###################################### Base de données
 ########### Utilisateur
 class User(UserMixin, db.Model):
-
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
+    nom = db.Column(db.String(80), unique=False, nullable=False)
+    prenom = db.Column(db.String(80), unique=False, nullable=False)
+    mail = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
 
@@ -59,6 +61,7 @@ class Ticket(db.Model):
     description = db.Column(db.Text, nullable=False)
     priority = db.Column(db.String(50), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship('User', backref=db.backref('tickets', lazy=True))
 
 ########### Initialisation de la base de données
 with app.app_context():
@@ -66,13 +69,13 @@ with app.app_context():
 
     # Ajouter un utilisateur admin
     if not User.query.filter_by(username='admin').first():
-        admin_user = User(username='admin', is_admin=True)
+        admin_user = User(username='admin', nom="Administrateur", prenom="Ticketing", mail="admin@gmail.com", is_admin=True)
         admin_user.set_password('admin')
         db.session.add(admin_user)
 
     # Ajouter un utilisateur non admin
     if not User.query.filter_by(username='user').first():
-        regular_user = User(username='user', is_admin=False)
+        regular_user = User(username='user', nom="User", prenom="Ticketing", mail="user@gmail.com", is_admin=False)
         regular_user.set_password('user')
         db.session.add(regular_user)
 
@@ -159,7 +162,7 @@ def admin():
         flash("Vous n'avez pas les droits nécessaires pour accéder à cette page.", "danger")
         return redirect(url_for('home'))
 
-    tickets = Ticket.query.all()
+    tickets = Ticket.query.join(User, Ticket.user_id == User.id).all()
     return render_template('admin.html', tickets=tickets)
 
 @app.route('/update/<int:ticket_id>', methods=['GET', 'POST'])
@@ -182,7 +185,6 @@ def update_ticket(ticket_id):
     return render_template('update_ticket.html', form=form)
 
 ########### Déconnexion
-# Route de déconnexion
 @app.route('/logout')
 @login_required
 def logout():
