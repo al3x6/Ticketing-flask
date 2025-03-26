@@ -30,10 +30,11 @@
                     <br>
                     <p><strong>Description :</strong> {{ ticket.description }}</p>
                     <br>
-                    <p><strong>Personne :</strong> {{ ticket.user.nom }} {{ ticket.user.prenom }}</p>
+                    <p><strong>Créé par :</strong> {{ ticket.user.nom }} {{ ticket.user.prenom }}</p>
                     <p><strong>Mail :</strong> {{ ticket.user.mail }}</p>
                     <br>
                     <p><strong>Priorité :</strong> {{ ticket.priority }}</p>
+                    <p><strong>Statut :</strong> {{ ticket.status }}</p>
                 </div>
                 <a href="{{ url_for('update_ticket', ticket_id=ticket.id) }}">✏️</a>
             </div>

@@ -15,6 +15,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 import os
 import time
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24) # Clé secrète aléatoire pour les sessions
@@ -60,6 +61,8 @@ class Ticket(db.Model):
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
     priority = db.Column(db.String(50), nullable=True)
+    status = db.Column(db.String(50), nullable=False, default='Ouvert')
+    date = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', backref=db.backref('tickets', lazy=True))
 
@@ -93,12 +96,13 @@ class LoginForm(FlaskForm):
 class TicketForm(FlaskForm):
     title = StringField('Titre', validators=[DataRequired()])
     description = TextAreaField('Description', validators=[DataRequired()])
-    #priority = SelectField('Priorité', choices=[('Low', 'Low'), ('Medium', 'Medium'), ('High', 'High')])
+    #priority = SelectField('Priorité', choices=[('Basse', 'Basse'), ('Moyen', 'Moyen'), ('Haute', 'Haute')])
     submit = SubmitField('Soumettre')
 class UpdateTicketForm(FlaskForm):
     title = StringField('Titre', validators=[DataRequired()])
     description = TextAreaField('Description', validators=[DataRequired()])
-    priority = SelectField('Priorité', choices=[('Low', 'Low'), ('Medium', 'Medium'), ('High', 'High')])
+    priority = SelectField('Priorité', choices=[('Basse', 'Basse'), ('Moyen', 'Moyen'), ('Haute', 'Haute')])
+    status = SelectField('Status', choices=[('Ouvert', 'Ouvert'), ('Fermé', 'Fermé')], validators=[DataRequired()])
     submit = SubmitField('Mettre à jour')
 
 ###################################### Route
@@ -179,6 +183,7 @@ def update_ticket(ticket_id):
         ticket.title = form.title.data
         ticket.description = form.description.data
         ticket.priority = form.priority.data
+        ticket.status = form.status.data
         db.session.commit()
         flash("Ticket mis à jour avec succès !", "success")
         return redirect(url_for('admin'))
