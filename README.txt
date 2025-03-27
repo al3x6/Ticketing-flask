@@ -1,8 +1,8 @@
 Création d'un dossier -> L'ouvrir
 
-pip install poetry
+pip install poetry          # Installer Poetry, seulement la premiere fois
 
-poetry init                 # Initialiser
+poetry init                 # Initialiser, seulement la premiere fois
 
 poetry install              # installer les dépendances du projet
 
