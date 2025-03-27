@@ -30,3 +30,14 @@ Partie Utilisateur
 * Créé deux utilisateurs
 * Suivi de ses propres tickets (home.html)
 * Communication messagerie avec le support
+
+Schéma :
+* Infrastructure : Élaborer l'architecture de l'application, en détaillant les composants clés (serveur, base de données, client) et leur interaction.
+* Expliquer le choix des technologies et l'organisation de l'infrastructure pour garantir la scalabilité et la performance.
+* Conception Base de données
+
+Infra :
+* Serveur redondant
+* Service Base de données redondant
+* Un reverse Proxy (avec nginx) sera utilisé pour répartir la charge et sécuriser les communications via TLS.
+* Un Web Application Firewall (WAF) pour protéger l'application contre les attaques courantes telles que XSS ou injections SQL.
