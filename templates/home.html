@@ -22,5 +22,20 @@
             {% endfor %}
         {% endif %}
     {% endwith %}
+
+    <h2>Vos Tickets</h2> <p>Nombre de tickets : {{ tickets|length }}</p>
+{% if tickets %}
+    <ul>
+        {% for ticket in tickets %}
+            <li>
+                <strong>{{ ticket.title }}</strong> - {{ ticket.status }}<br>
+                {{ ticket.description }}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>Aucun ticket soumis pour le moment.</p>
+{% endif %}
+
 </body>
 </html>

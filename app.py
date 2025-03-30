@@ -82,6 +82,15 @@ with app.app_context():
         regular_user.set_password('user')
         db.session.add(regular_user)
 
+    # Ajouter un autre utilisateur non admin (user2)
+    if not User.query.filter_by(username='user2').first():
+        regular_user2 = User(username='user2', nom="User2", prenom="Ticketing", mail="user2@gmail.com", is_admin=False)
+        regular_user2.set_password('user2')
+        db.session.add(regular_user2)
+
+
+
+
     db.session.commit()
 
 
@@ -133,7 +142,9 @@ def home():
         flash("Vous n'avez pas les droits nécessaires pour accéder à cette page.", "danger")
         return redirect(url_for('admin'))
 
-    return render_template('home.html')
+    tickets = Ticket.query.filter_by(user_id=current_user.id).all()
+    return render_template('home.html', tickets=tickets)
+
 
 # Soumettre un ticket
 @app.route('/submit_ticket', methods=['GET', 'POST'])
