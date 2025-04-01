@@ -23,19 +23,25 @@
         {% endif %}
     {% endwith %}
 
-    <h2>Vos Tickets</h2> <p>Nombre de tickets : {{ tickets|length }}</p>
-{% if tickets %}
-    <ul>
-        {% for ticket in tickets %}
-            <li>
-                <strong>{{ ticket.title }}</strong> - {{ ticket.status }}<br>
-                {{ ticket.description }}
-            </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>Aucun ticket soumis pour le moment.</p>
-{% endif %}
+    <h2>Vos Tickets</h2>
+    <p>Nombre de tickets : {{ tickets|length }}</p>
+    {% if tickets %}
+        <div class="tickets-container">
+            {% for ticket in tickets %}
+                <div class="ticket">
+                    <div class="ticket-content">
+                        <h2>{{ ticket.title }}</h2>
+                        <br>
+                        <p>{{ ticket.status }}</p>
+                        <br>
+                        <p>{{ ticket.description }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Aucun ticket soumis pour le moment.</p>
+    {% endif %}
 
 </body>
 </html>
