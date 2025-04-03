@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 # from errors import page_not_found, internal_server_error  # Import des erreurs
 
 from flask_wtf import FlaskForm # Formulaire
+import subprocess
 
 # Login
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField, SelectField
@@ -79,31 +80,31 @@ class Ticket(db.Model):
     user = db.relationship('User', backref=db.backref('tickets', lazy=True))
 
 ########### Initialisation de la base de données
-with app.app_context():
-    db.create_all()
-
-    # Ajouter un utilisateur admin
-    if not User.query.filter_by(username='admin').first():
-        admin_user = User(username='admin', nom="Administrateur", prenom="Ticketing", mail="admin@gmail.com", is_admin=True)
-        admin_user.set_password('admin')
-        db.session.add(admin_user)
-
-    # Ajouter un utilisateur non admin
-    if not User.query.filter_by(username='user').first():
-        regular_user = User(username='user', nom="User", prenom="Ticketing", mail="user@gmail.com", is_admin=False)
-        regular_user.set_password('user')
-        db.session.add(regular_user)
-
-    # Ajouter un autre utilisateur non admin (user2)
-    if not User.query.filter_by(username='user2').first():
-        regular_user2 = User(username='user2', nom="User2", prenom="Ticketing", mail="user2@gmail.com", is_admin=False)
-        regular_user2.set_password('user2')
-        db.session.add(regular_user2)
-
-
-
-
-    db.session.commit()
+# with app.app_context():
+#     db.create_all()
+#
+#     # Ajouter un utilisateur admin
+#     if not User.query.filter_by(username='admin').first():
+#         admin_user = User(username='admin', nom="Administrateur", prenom="Ticketing", mail="admin@gmail.com", is_admin=True)
+#         admin_user.set_password('admin')
+#         db.session.add(admin_user)
+#
+#     # Ajouter un utilisateur non admin
+#     if not User.query.filter_by(username='user').first():
+#         regular_user = User(username='user', nom="User", prenom="Ticketing", mail="user@gmail.com", is_admin=False)
+#         regular_user.set_password('user')
+#         db.session.add(regular_user)
+#
+#     # Ajouter un autre utilisateur non admin (user2)
+#     if not User.query.filter_by(username='user2').first():
+#         regular_user2 = User(username='user2', nom="User2", prenom="Ticketing", mail="user2@gmail.com", is_admin=False)
+#         regular_user2.set_password('user2')
+#         db.session.add(regular_user2)
+#
+#
+#
+#
+#     db.session.commit()
 
 
 ###################################### Formulaire
@@ -272,4 +273,5 @@ def internal_server_error(error):
 
 ###################################### Main
 if __name__ == '__main__':
+    # subprocess.run(['python', 'build_db.py'], check=True)
     app.run(host='0.0.0.0', port=5000, debug=True, threaded=True)
