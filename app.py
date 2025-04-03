@@ -22,8 +22,8 @@ app = Flask(__name__)
 
 ###################################### Configuration
 ########### Configuration de la clé secrète
-app.secret_key = os.urandom(24) # Clé secrète aléatoire pour les sessions
-#app.secret_key = 'supersecretkey'  # Clé secrète pour les sessions
+#app.secret_key = os.urandom(24) # Clé secrète aléatoire pour les sessions
+app.secret_key = 'supersecretkey'  # Clé secrète pour les sessions
 
 ########### Cookie
 app.config['SESSION_COOKIE_HTTPONLY'] = True
