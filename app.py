@@ -7,7 +7,6 @@ import subprocess
 # Login
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField, SelectField
 from wtforms.validators import DataRequired, Length
-from flask_session import Session
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
 from flask_sqlalchemy import SQLAlchemy # Base de données
@@ -17,13 +16,21 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 import os
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
+
+###################################### Configuration
+########### Configuration de la clé secrète
 app.secret_key = os.urandom(24) # Clé secrète aléatoire pour les sessions
 #app.secret_key = 'supersecretkey'  # Clé secrète pour les sessions
 
-###################################### Configuration
+########### Cookie
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SECURE'] = False  # Mettre sur False en local si pas en HTTPS
+app.config['REMEMBER_COOKIE_HTTPONLY'] = True
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=5)
+
 ########### Base de données
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tickets.db'
 db = SQLAlchemy(app)
@@ -32,20 +39,6 @@ db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-
-########### Flask-Login
-app.config['SESSION_TYPE'] = 'filesystem'  # Stocke les sessions dans un fichier sur le serveur
-app.config['SESSION_PERMANENT'] = False
-app.config['SESSION_FILE_DIR'] = "./flask_session"  # Dossier où stocker les sessions
-app.config['SESSION_USE_SIGNER'] = True  # Sécurise les cookies de session
-
-########### Cookie
-app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SECURE'] = False  # Mettre sur False en local si pas en HTTPS
-# app.config['REMEMBER_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-
-Session(app)
 
 ###################################### Base de données
 ########### Utilisateur
@@ -79,34 +72,6 @@ class Ticket(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', backref=db.backref('tickets', lazy=True))
 
-########### Initialisation de la base de données
-# with app.app_context():
-#     db.create_all()
-#
-#     # Ajouter un utilisateur admin
-#     if not User.query.filter_by(username='admin').first():
-#         admin_user = User(username='admin', nom="Administrateur", prenom="Ticketing", mail="admin@gmail.com", is_admin=True)
-#         admin_user.set_password('admin')
-#         db.session.add(admin_user)
-#
-#     # Ajouter un utilisateur non admin
-#     if not User.query.filter_by(username='user').first():
-#         regular_user = User(username='user', nom="User", prenom="Ticketing", mail="user@gmail.com", is_admin=False)
-#         regular_user.set_password('user')
-#         db.session.add(regular_user)
-#
-#     # Ajouter un autre utilisateur non admin (user2)
-#     if not User.query.filter_by(username='user2').first():
-#         regular_user2 = User(username='user2', nom="User2", prenom="Ticketing", mail="user2@gmail.com", is_admin=False)
-#         regular_user2.set_password('user2')
-#         db.session.add(regular_user2)
-#
-#
-#
-#
-#     db.session.commit()
-
-
 ###################################### Formulaire
 # Formulaire de connexion sécurisé
 class LoginForm(FlaskForm):
@@ -136,6 +101,10 @@ def login():
         user = User.query.filter_by(username=form.username.data).first()
         if user and user.check_password(form.password.data):
             login_user(user)
+            session.permanent = True
+            session["username"] = user.username
+            session["user_id"] = user.id  # Stocke aussi l'ID utilisateur
+            session["is_admin"] = user.is_admin  # Stocke le statut admin
             if user.is_admin:
                 flash("Connexion réussie !", "success")
                 return redirect(url_for('admin'))
@@ -155,8 +124,9 @@ def home():
         flash("Vous n'avez pas les droits nécessaires pour accéder à cette page.", "danger")
         return redirect(url_for('admin'))
 
+    username = session.get("username")
     tickets = Ticket.query.filter_by(user_id=current_user.id).all()
-    return render_template('home.html', tickets=tickets)
+    return render_template('home.html', tickets=tickets, username=username)
 
 
 # Soumettre un ticket
@@ -190,8 +160,9 @@ def admin():
         flash("Vous n'avez pas les droits nécessaires pour accéder à cette page.", "danger")
         return redirect(url_for('home'))
 
+    username = session.get("username")
     tickets = Ticket.query.join(User, Ticket.user_id == User.id).all()
-    return render_template('admin.html', tickets=tickets)
+    return render_template('admin.html', tickets=tickets, username=username)
 
 @app.route('/update/<int:ticket_id>', methods=['GET', 'POST'])
 @login_required
@@ -218,6 +189,10 @@ def update_ticket(ticket_id):
 @login_required
 def logout():
     logout_user()
+    session.pop("username", None)  # Supprime le nom d'utilisateur
+    session.pop("user_id", None)  # Supprime l'ID utilisateur
+    session.pop("is_admin", None)  # Supprime le statut admin
+    session.clear()
     flash("Déconnexion réussie !", "success")
     return redirect(url_for('login'))
 
@@ -274,4 +249,4 @@ def internal_server_error(error):
 ###################################### Main
 if __name__ == '__main__':
     # subprocess.run(['python', 'build_db.py'], check=True)
-    app.run(host='0.0.0.0', port=5000, debug=True, threaded=True)
+    app.run(host='127.0.0.1', port=5000, debug=True, threaded=True)
