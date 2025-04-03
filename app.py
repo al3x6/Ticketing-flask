@@ -6,6 +6,7 @@ from flask_wtf import FlaskForm # Formulaire
 # Login
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField, SelectField
 from wtforms.validators import DataRequired, Length
+from flask_session import Session
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
 from flask_sqlalchemy import SQLAlchemy # Base de données
@@ -20,19 +21,30 @@ from datetime import datetime
 app = Flask(__name__)
 app.secret_key = os.urandom(24) # Clé secrète aléatoire pour les sessions
 #app.secret_key = 'supersecretkey'  # Clé secrète pour les sessions
+
+###################################### Configuration
+########### Base de données
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tickets.db'
 db = SQLAlchemy(app)
 
-###################################### Configuration
 ########### Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+########### Flask-Login
+app.config['SESSION_TYPE'] = 'filesystem'  # Stocke les sessions dans un fichier sur le serveur
+app.config['SESSION_PERMANENT'] = False
+app.config['SESSION_FILE_DIR'] = "./flask_session"  # Dossier où stocker les sessions
+app.config['SESSION_USE_SIGNER'] = True  # Sécurise les cookies de session
+
 ########### Cookie
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SECURE'] = False  # Mettre sur False en local si pas en HTTPS
-app.config['REMEMBER_COOKIE_HTTPONLY'] = True
+# app.config['REMEMBER_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+
+Session(app)
 
 ###################################### Base de données
 ########### Utilisateur
