@@ -9,6 +9,12 @@
 
 
 <body>
+    <nav>
+        <a href="{{ url_for('login') }}">Connexion</a>
+        <a href="{{ url_for('sign_in') }}">Inscription</a>
+    </nav>
+
+
     <h1>{{ message }}</h1>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -19,6 +25,7 @@
         {% endif %}
     {% endwith %}
     <br>
+
     <form method="POST" action="{{ url_for('login') }}">
         {{ form.hidden_tag() }}
 

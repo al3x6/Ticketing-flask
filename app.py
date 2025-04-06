@@ -1,3 +1,5 @@
+import re
+
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 # from errors import page_not_found, internal_server_error  # Import des erreurs
 
@@ -6,7 +8,7 @@ import subprocess
 
 # Login
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField, SelectField
-from wtforms.validators import DataRequired, Length
+from wtforms.validators import DataRequired, Length, Email
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
 from flask_sqlalchemy import SQLAlchemy # Base de données
@@ -17,6 +19,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import os
 import time
 from datetime import datetime, timedelta
+
+email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
 
 app = Flask(__name__)
 
@@ -61,7 +65,17 @@ class User(UserMixin, db.Model):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-########### Ticketing
+def add_user(mail, username, nom, prenom, password):
+    # hashed_password = generate_password_hash(password)
+    new_user = User(mail=mail, username=username, nom=nom, prenom=prenom)
+    new_user.set_password(password)
+    db.session.add(new_user)
+    db.session.commit()
+    # flash("Utilisateur ajouté avec succès.", category="success")
+    return new_user
+
+
+########### Tickets
 class Ticket(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
@@ -79,6 +93,17 @@ class LoginForm(FlaskForm):
     password = PasswordField('Mot de passe', validators=[DataRequired()])
     submit = SubmitField('Se connecter')
 
+
+# Formulaire d'inscription
+class SignInForm(FlaskForm):
+    mail = StringField('Mail', validators=[DataRequired()])
+    username = StringField('Nom d\'utilisateur', validators=[DataRequired()])
+    nom = StringField('Nom', validators=[DataRequired()])
+    prenom = StringField('Prenom', validators=[DataRequired()])
+    password = PasswordField('Mot de passe', validators=[DataRequired()])
+    password_confirm = PasswordField('Confirmation de mot de passeBLBLALALBALBA', validators=[DataRequired()])
+    submit = SubmitField("S'inscrire")
+
 # Formulaire de ticket
 class TicketForm(FlaskForm):
     title = StringField('Titre', validators=[DataRequired()])
@@ -93,8 +118,13 @@ class UpdateTicketForm(FlaskForm):
     submit = SubmitField('Mettre à jour')
 
 ###################################### Route
-########### page d'accueil
-@app.route('/', methods=['GET', 'POST'])
+###########Connexion
+
+@app.route('/')
+def root():
+    return redirect(url_for('login'))
+
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
@@ -113,7 +143,26 @@ def login():
                 return redirect(url_for('home'))
         else:
             flash("Nom d'utilisateur ou mot de passe incorrect", "danger")
-    return render_template('index.html', form=form, message="Bienvenue sur Flask")
+    else:
+        return render_template('login.html', form=form, message="Bienvenue sur Flask")
+
+###########Inscription
+
+@app.route('/sign_in', methods=['GET', 'POST'])
+def sign_in():
+    form = SignInForm()
+    if form.validate_on_submit():
+        if not re.match(email_regex, form.mail.data)  :
+            flash("L\'adresse email n\'est pas valide.", "danger")
+        if form.password.data != form.password_confirm.data:
+            flash("Les mots de passe ne correspondent pas", "danger")
+        elif User.query.filter_by(username=form.username.data).first():
+            flash("Ce nom d'utilisateur est déjà pris", "danger")
+        else:
+            add_user(form.mail.data, form.username.data, form.nom.data, form.prenom.data, form.password.data)
+
+            return redirect(url_for('login'))
+    return render_template('sign_in.html', message="Bienvenue sur Flask", form=form)
 
 ########### Utilisateur
 # Page après connexion utilisateur

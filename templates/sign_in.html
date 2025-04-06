@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - Flask App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+    <nav>
+        <a href="{{ url_for('login') }}">Connexion</a>
+        <a href="{{ url_for('sign_in') }}">Inscription</a>
+    </nav>
+
+    <h1>Inscription</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <br>
+
+    <form method="POST" action="{{ url_for('sign_in') }}">
+        {{ form.hidden_tag() }}
+
+        <div>
+            <label for="mail">Mail :</label>
+            {{ form.mail(id="mail") }}
+            {% if form.mail.errors %}
+                <ul class="errors">
+                    {% for error in form.mail.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div>
+            <label for="username">Nom d'utilisateur :</label>
+            {{ form.username(id="username") }}
+            {% if form.username.errors %}
+                <ul class="errors">
+                    {% for error in form.username.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div>
+            <label for="nom">Nom :</label>
+            {{ form.nom(id="nom") }}
+            {% if form.nom.errors %}
+                <ul class="errors">
+                    {% for error in form.nom.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div>
+            <label for="prenom">Prénom :</label>
+            {{ form.prenom(id="prenom") }}
+            {% if form.prenom.errors %}
+                <ul class="errors">
+                    {% for error in form.prenom.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div>
+            <label for="password">Mot de passe :</label>
+            {{ form.password(id="password") }}
+            {% if form.password.errors %}
+                <ul class="errors">
+                    {% for error in form.password.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div>
+            <label for="password_confirm">Confirmation du mot de passe :</label>
+            {{ form.password_confirm(id="password_confirm") }}
+            {% if form.password_confirm.errors %}
+                <ul class="errors">
+                    {% for error in form.password_confirm.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <div>
+            <button type="submit">S'inscrire</button>
+        </div>
+    </form>
+</body>
+</html>
