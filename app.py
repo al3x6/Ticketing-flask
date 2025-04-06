@@ -91,6 +91,19 @@ class Ticket(db.Model):
     user = db.relationship('User', backref=db.backref('tickets', lazy=True))
     attachment_path = db.Column(db.String(255), nullable=True)
 
+########### Messages
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    ticket_id = db.Column(db.Integer, db.ForeignKey('ticket.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)  # Si l'admin a écrit le message
+
+    ticket = db.relationship('Ticket', backref=db.backref('messages', lazy=True))
+    user = db.relationship('User', backref=db.backref('messages', lazy=True))
+
+
 
 ###################################### Formulaire
 # Formulaire de connexion sécurisé
@@ -120,14 +133,19 @@ class TicketForm(FlaskForm):
     #priority = SelectField('Priorité', choices=[('Basse', 'Basse'), ('Moyen', 'Moyen'), ('Haute', 'Haute')])
     submit = SubmitField('Soumettre')
 
-
-
 class UpdateTicketForm(FlaskForm):
     title = StringField('Titre', validators=[DataRequired()])
     description = TextAreaField('Description', validators=[DataRequired()])
     priority = SelectField('Priorité', choices=[('Basse', 'Basse'), ('Moyen', 'Moyen'), ('Haute', 'Haute')])
     status = SelectField('Status', choices=[('Ouvert', 'Ouvert'), ('Fermé', 'Fermé')], validators=[DataRequired()])
     submit = SubmitField('Mettre à jour')
+
+# Formulaire de message
+class ChatForm(FlaskForm):
+    content = StringField('Titre', validators=[DataRequired()])
+    submit = SubmitField('Envoyer')
+
+
 
 ###################################### Route
 ###########Connexion
@@ -272,6 +290,29 @@ def update_ticket(ticket_id):
         flash("Ticket mis à jour avec succès !", "success")
         return redirect(url_for('admin'))
     return render_template('update_ticket.html', form=form)
+
+########### Chat
+@app.route('/ticket/<int:ticket_id>/chat', methods=['GET', 'POST'])
+@login_required
+def chat(ticket_id):
+    ticket = Ticket.query.get_or_404(ticket_id)
+
+    messages = Message.query.filter_by(ticket_id=ticket_id).all()
+
+    form = ChatForm()
+    if form.validate_on_submit():
+        new_message = Message(
+            content=form.content.data,
+            ticket_id=ticket_id,
+            user_id=current_user.id,
+            is_admin = current_user.is_admin,
+        )
+        db.session.add(new_message)
+        db.session.commit()
+
+    return render_template('chat.html', ticket=ticket, form=form, messages=messages)
+
+
 
 ########### Déconnexion
 @app.route('/logout')

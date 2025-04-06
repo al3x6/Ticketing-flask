@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+    <div class="ticket">
+        <div class="ticket-content">
+            <h2>{{ ticket.title }}</h2>
+            <p><strong>Description :</strong> {{ ticket.description }}</p>
+            <p><strong>Créé par :</strong> {{ ticket.user.nom }} {{ ticket.user.prenom }}</p>
+            <p><strong>Mail :</strong> {{ ticket.user.mail }}</p>
+            <p><strong>Priorité :</strong> {{ ticket.priority }}</p>
+            <p><strong>Statut :</strong> {{ ticket.status }}</p>
+        </div>
+    </div>
+
+    <!-- Chat Section -->
+    <div class="chat-container">
+        <h3>Discussion</h3>
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message">
+                    <strong>{{ message.user.nom }} {{ message.user.prenom }}:</strong>
+                    <p>{{ message.content }}</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Form to send a new message -->
+        <form method="POST" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <div>
+                <label for="content">Message:</label>
+                {{ form.content(id="content") }}
+            </div>
+            <button type="submit">Envoyer</button>
+        </form>
+    </div>
+
+</body>
+</html>
