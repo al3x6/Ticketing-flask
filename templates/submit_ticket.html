@@ -15,7 +15,7 @@
 
     <h1>Soumettre un Ticket</h1>
     <br>
-    <form method="POST">
+    <form method="POST" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
         <div>
             <label for="title">Titre :</label>
@@ -25,6 +25,14 @@
             <label for="description">Description :</label>
             {{ form.description(id="description") }}
         </div>
+
+        <div>
+            <label for="attachment">Pièce.s Jointe.s (Screenshot, Fichier touché etc) :</label>
+                            {{ form.attachment(id="attachment") }}
+        </div>
+        <br>
+
+
         <!--<div>
             <label for="priority">Priorité :</label>
             {# {{ form.priority(id="priority") }} #}

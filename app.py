@@ -6,6 +6,8 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from flask_wtf import FlaskForm # Formulaire
 import subprocess
 
+from flask_wtf.file import FileField, FileAllowed
+from werkzeug.utils import secure_filename
 # Login
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField, SelectField
 from wtforms.validators import DataRequired, Length, Email
@@ -29,11 +31,13 @@ app = Flask(__name__)
 #app.secret_key = os.urandom(24) # Clé secrète aléatoire pour les sessions
 app.secret_key = 'supersecretkey'  # Clé secrète pour les sessions
 
-########### Cookie
+########### Configuration
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SECURE'] = False  # Mettre sur False en local si pas en HTTPS
 app.config['REMEMBER_COOKIE_HTTPONLY'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=5)
+# app.config['UPLOAD_FOLDER'] = 'attachments'
+UPLOAD_ROOT = "attachments"
 
 ########### Base de données
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tickets.db'
@@ -85,6 +89,8 @@ class Ticket(db.Model):
     date = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', backref=db.backref('tickets', lazy=True))
+    attachment_path = db.Column(db.String(255), nullable=True)
+
 
 ###################################### Formulaire
 # Formulaire de connexion sécurisé
@@ -109,8 +115,13 @@ class SignInForm(FlaskForm):
 class TicketForm(FlaskForm):
     title = StringField('Titre', validators=[DataRequired()])
     description = TextAreaField('Description', validators=[DataRequired()])
+    # Champ de fichier
+    attachment = FileField('Fichier', validators=[])
     #priority = SelectField('Priorité', choices=[('Basse', 'Basse'), ('Moyen', 'Moyen'), ('Haute', 'Haute')])
     submit = SubmitField('Soumettre')
+
+
+
 class UpdateTicketForm(FlaskForm):
     title = StringField('Titre', validators=[DataRequired()])
     description = TextAreaField('Description', validators=[DataRequired()])
@@ -187,6 +198,18 @@ def home():
 
 
 # Soumettre un ticket
+def save_file(file, user_id, ticket_id):
+    # Crée le chemin : attachments/user_3/ticket_12/
+    folder_path = os.path.join(UPLOAD_ROOT, f"user_{user_id}", f"ticket_{ticket_id}")
+    os.makedirs(folder_path, exist_ok=True)
+
+    # Nettoie le nom du fichier et sauvegarde
+    filename = secure_filename(file.filename)
+    filepath = os.path.join(folder_path, filename)
+    file.save(filepath)
+
+    return filepath
+
 @app.route('/submit_ticket', methods=['GET', 'POST'])
 @login_required
 def submit_ticket():
@@ -204,6 +227,15 @@ def submit_ticket():
         )
         db.session.add(new_ticket)
         db.session.commit()
+
+        attachment = form.attachment.data
+        if attachment:
+            filepath = save_file(attachment, current_user.id, new_ticket.id)
+            new_ticket.attachment_path = filepath
+            db.session.commit()
+
+
+
         flash("Ticket soumis avec succès !", "success")
         return redirect(url_for('home'))
     return render_template('submit_ticket.html', form=form)
