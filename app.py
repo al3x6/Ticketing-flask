@@ -225,7 +225,7 @@ def submit_ticket():
             #priority=form.priority.data,
             user_id=current_user.id
         )
-        db.session.add(new_ticket)
+        db.session.add(new_ticket) #pour que le ticket aie un id
         db.session.commit()
 
         attachment = form.attachment.data
@@ -233,8 +233,6 @@ def submit_ticket():
             filepath = save_file(attachment, current_user.id, new_ticket.id)
             new_ticket.attachment_path = filepath
             db.session.commit()
-
-
 
         flash("Ticket soumis avec succès !", "success")
         return redirect(url_for('home'))
