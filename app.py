@@ -157,8 +157,7 @@ def login():
                 return redirect(url_for('home'))
         else:
             flash("Nom d'utilisateur ou mot de passe incorrect", "danger")
-    else:
-        return render_template('login.html', form=form, message="Bienvenue sur Flask")
+    return render_template('login.html', form=form, message="Bienvenue sur Flask")
 
 ###########Inscription
 
