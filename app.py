@@ -48,10 +48,10 @@ login_manager.login_view = 'login'
 ########### Utilisateur
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
+    #username = db.Column(db.String(80), unique=True, nullable=False)
+    mail = db.Column(db.String(80), unique=True, nullable=False)
     nom = db.Column(db.String(80), unique=False, nullable=False)
     prenom = db.Column(db.String(80), unique=False, nullable=False)
-    mail = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
 
@@ -65,9 +65,9 @@ class User(UserMixin, db.Model):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-def add_user(mail, username, nom, prenom, password):
-    # hashed_password = generate_password_hash(password)
-    new_user = User(mail=mail, username=username, nom=nom, prenom=prenom)
+def add_user(mail, nom, prenom, password):
+    #new_user = User(mail=mail, username=username, nom=nom, prenom=prenom)
+    new_user = User(mail=mail, nom=nom, prenom=prenom)
     new_user.set_password(password)
     db.session.add(new_user)
     db.session.commit()
@@ -89,7 +89,8 @@ class Ticket(db.Model):
 ###################################### Formulaire
 # Formulaire de connexion sécurisé
 class LoginForm(FlaskForm):
-    username = StringField('Nom d\'utilisateur', validators=[DataRequired()])
+    #username = StringField('Nom d\'utilisateur', validators=[DataRequired()])
+    mail = StringField('Mail', validators=[DataRequired()])
     password = PasswordField('Mot de passe', validators=[DataRequired()])
     submit = SubmitField('Se connecter')
 
@@ -97,7 +98,7 @@ class LoginForm(FlaskForm):
 # Formulaire d'inscription
 class SignInForm(FlaskForm):
     mail = StringField('Mail', validators=[DataRequired()])
-    username = StringField('Nom d\'utilisateur', validators=[DataRequired()])
+    #username = StringField('Nom d\'utilisateur', validators=[DataRequired()])
     nom = StringField('Nom', validators=[DataRequired()])
     prenom = StringField('Prenom', validators=[DataRequired()])
     password = PasswordField('Mot de passe', validators=[DataRequired()])
@@ -128,11 +129,13 @@ def root():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
+        # user = User.query.filter_by(username=form.username.data).first()
+        user = User.query.filter_by(mail=form.mail.data).first()
         if user and user.check_password(form.password.data):
             login_user(user)
             session.permanent = True
-            session["username"] = user.username
+            # session["username"] = user.username
+            session["mail"] = user.mail
             session["user_id"] = user.id  # Stocke aussi l'ID utilisateur
             session["is_admin"] = user.is_admin  # Stocke le statut admin
             if user.is_admin:
@@ -156,10 +159,12 @@ def sign_in():
             flash("L\'adresse email n\'est pas valide.", "danger")
         if form.password.data != form.password_confirm.data:
             flash("Les mots de passe ne correspondent pas", "danger")
-        elif User.query.filter_by(username=form.username.data).first():
-            flash("Ce nom d'utilisateur est déjà pris", "danger")
+        # elif User.query.filter_by(username=form.username.data).first():
+        elif User.query.filter_by(mail=form.mail.data).first():
+            flash("Cet email est deja utilisé", "danger")
         else:
-            add_user(form.mail.data, form.username.data, form.nom.data, form.prenom.data, form.password.data)
+            # add_user(form.mail.data, form.username.data, form.nom.data, form.prenom.data, form.password.data)
+            add_user(form.mail.data, form.nom.data, form.prenom.data, form.password.data)
 
             return redirect(url_for('login'))
     return render_template('sign_in.html', message="Bienvenue sur Flask", form=form)
@@ -173,9 +178,12 @@ def home():
         flash("Vous n'avez pas les droits nécessaires pour accéder à cette page.", "danger")
         return redirect(url_for('admin'))
 
-    username = session.get("username")
+    #username = session.get("username")
+    mail = session.get("mail")
     tickets = Ticket.query.filter_by(user_id=current_user.id).all()
-    return render_template('home.html', tickets=tickets, username=username)
+    # return render_template('home.html', tickets=tickets, username=username)
+    return render_template('home.html', tickets=tickets, mail=mail)
+
 
 
 # Soumettre un ticket
@@ -209,9 +217,12 @@ def admin():
         flash("Vous n'avez pas les droits nécessaires pour accéder à cette page.", "danger")
         return redirect(url_for('home'))
 
-    username = session.get("username")
+    #username = session.get("username")
+    mail = session.get("mail")
     tickets = Ticket.query.join(User, Ticket.user_id == User.id).all()
-    return render_template('admin.html', tickets=tickets, username=username)
+    #return render_template('admin.html', tickets=tickets, username=username)
+    return render_template('admin.html', tickets=tickets, mail=mail)
+
 
 @app.route('/update/<int:ticket_id>', methods=['GET', 'POST'])
 @login_required
@@ -238,7 +249,8 @@ def update_ticket(ticket_id):
 @login_required
 def logout():
     logout_user()
-    session.pop("username", None)  # Supprime le nom d'utilisateur
+    # session.pop("username", None)  # Supprime le nom d'utilisateur
+    session.pop("mail", None)  # Supprime l'email'
     session.pop("user_id", None)  # Supprime l'ID utilisateur
     session.pop("is_admin", None)  # Supprime le statut admin
     session.clear()
@@ -269,10 +281,12 @@ def block_brute_force():
 def track_failed_attempts(response):
     if request.endpoint == 'login' and request.method == 'POST':  # Si tentative de connexion
         ip = request.remote_addr # Récupère l'adresse IP du client
-        username = request.form.get('username')
+        # username = request.form.get('username')
+        mail = request.form.get('mail')
         password = request.form.get('password')
 
-        user = User.query.filter_by(username=username).first()
+        # user = User.query.filter_by(username=username).first()
+        user = User.query.filter_by(mail=mail).first()
 
         if not user or not user.check_password(password):  # Si échec
             failed_attempts[ip] = failed_attempts.get(ip, 0) + 1  # Augmente le compteur

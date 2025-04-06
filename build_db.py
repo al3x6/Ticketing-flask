@@ -4,18 +4,33 @@ with app.app_context():
     # Créer toutes les tables
     db.create_all()
 
+    # users = [
+    #     {"username": "admin1", "nom": "phan", "prenom": "marc", "mail": "admin1@mail.com", "is_admin": True, "password": "admin1"},
+    #     {"username": "admin2", "nom": "arj", "prenom": "alexis", "mail": "admin2@mail.com", "is_admin": True, "password": "admin2"},
+    #     {"username": "user1", "nom": "ohb", "prenom": "amine", "mail": "user1@mail.com", "is_admin": False, "password": "user1"},
+    #     {"username": "user2", "nom": "boeing", "prenom": "jaques", "mail": "user2@mail.com", "is_admin": False, "password": "user2"},
+    #     {"username": "user3", "nom": "hello", "prenom": "thibaut", "mail": "user3@mail.com", "is_admin": False, "password": "user3"},
+    # ]
+
+    # for user_data in users:
+    #     if not User.query.filter_by(username=user_data['username']).first():
+    #         user = User(username=user_data['username'], nom=user_data['nom'], prenom=user_data['prenom'], mail=user_data['mail'], is_admin=user_data['is_admin'])
+    #         user.set_password(user_data['password'])
+    #         db.session.add(user)
+
+
     # Ajouter 5 utilisateurs
     users = [
-        {"username": "admin1", "nom": "phan", "prenom": "marc", "mail": "admin1@mail.com", "is_admin": True, "password": "admin1"},
-        {"username": "admin2", "nom": "arj", "prenom": "alexis", "mail": "admin2@mail.com", "is_admin": True, "password": "admin2"},
-        {"username": "user1", "nom": "ohb", "prenom": "amine", "mail": "user1@mail.com", "is_admin": False, "password": "user1"},
-        {"username": "user2", "nom": "boeing", "prenom": "jaques", "mail": "user2@mail.com", "is_admin": False, "password": "user2"},
-        {"username": "user3", "nom": "hello", "prenom": "thibaut", "mail": "user3@mail.com", "is_admin": False, "password": "user3"},
+        { "mail": "admin1@mail.com", "nom": "phan", "prenom": "marc",  "is_admin": True, "password": "admin1"},
+        { "mail": "admin2@mail.com", "nom": "arj", "prenom": "alexis",  "is_admin": True, "password": "admin2"},
+        { "mail": "user1@mail.com", "nom": "ohb", "prenom": "amine",  "is_admin": False, "password": "user1"},
+        { "mail": "user2@mail.com", "nom": "boeing", "prenom": "jaques",  "is_admin": False, "password": "user2"},
+        { "mail": "user3@mail.com", "nom": "hello", "prenom": "thibaut",  "is_admin": False, "password": "user3"},
     ]
 
     for user_data in users:
-        if not User.query.filter_by(username=user_data['username']).first():
-            user = User(username=user_data['username'], nom=user_data['nom'], prenom=user_data['prenom'], mail=user_data['mail'], is_admin=user_data['is_admin'])
+        if not User.query.filter_by(mail=user_data['mail']).first():
+            user = User(mail=user_data['mail'], nom=user_data['nom'], prenom=user_data['prenom'], is_admin=user_data['is_admin'])
             user.set_password(user_data['password'])
             db.session.add(user)
 

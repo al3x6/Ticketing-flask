@@ -13,7 +13,9 @@
         <a href="{{ url_for('logout') }}">Se déconnecter</a>
     </nav>
 
-    <h1>Bienvenue, {{ current_user.username }} !</h1>
+<!-- {#    <h1>Bienvenue, {{ current_user.username }}  #} !</h1>-->
+    <h1>Bienvenue, {{ current_user.nom }} {{ current_user.prenom }}!</h1>
+
     <br>
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
