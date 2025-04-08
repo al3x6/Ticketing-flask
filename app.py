@@ -21,15 +21,18 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import os
 import time
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
+import pymysql
 
 email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
 
 app = Flask(__name__)
+load_dotenv()
 
 ###################################### Configuration
 ########### Configuration de la clé secrète
 #app.secret_key = os.urandom(24) # Clé secrète aléatoire pour les sessions
-app.secret_key = 'supersecretkey'  # Clé secrète pour les sessions
+app.secret_key = os.getenv('SECRET_KEY')  # Clé secrète pour les sessions
 
 ########### Configuration
 app.config['SESSION_COOKIE_HTTPONLY'] = True
@@ -41,6 +44,11 @@ UPLOAD_ROOT = "attachments"
 
 ########### Base de données
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tickets.db'
+#app.config['SQLALCHEMY_DATABASE_URI'] = (
+#    f"mysql+mysqlconnector://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}"
+#    f"@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
+#)
+#pymysql.install_as_MySQLdb()
 db = SQLAlchemy(app)
 
 ########### Flask-Login
@@ -371,6 +379,10 @@ def track_failed_attempts(response):
     return response
 
 ###################################### Gestion des erreurs
+@app.errorhandler(403)
+def page_forbidden(error):
+    return render_template("403.html"), 403
+
 @app.errorhandler(404)
 def page_not_found(error):
     return render_template("404.html"), 404
