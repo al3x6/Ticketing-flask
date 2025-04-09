@@ -43,12 +43,21 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=5)
 UPLOAD_ROOT = "attachments"
 
 ########### Base de données
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tickets.db'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tickets.db'
+#print(f"DB_HOST: {os.getenv('DB_HOST')}")
+#print(f"DB_USER: {os.getenv('DB_USER')}")
+#print(f"DB_PASSWORD: {os.getenv('DB_PASSWORD')}")
+#print(f"DB_NAME: {os.getenv('DB_NAME')}")
+#print(f"DB_PORT: {os.getenv('DB_PORT')}")
+app.config['SQLALCHEMY_DATABASE_URI'] = (
+    f"mysql+mysqlconnector://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}"
+    f"@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
+)
 #app.config['SQLALCHEMY_DATABASE_URI'] = (
-#    f"mysql+mysqlconnector://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}"
-#    f"@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
+#    f"mysql+mysqlconnector://{os.getenv('DB_USER')}@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
 #)
-#pymysql.install_as_MySQLdb()
+
+pymysql.install_as_MySQLdb()
 db = SQLAlchemy(app)
 
 ########### Flask-Login
@@ -72,6 +81,9 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+    def __repr__(self):
+        return f'<User {self.id}>'
 
 @login_manager.user_loader
 def load_user(user_id):
