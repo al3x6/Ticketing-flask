@@ -141,7 +141,7 @@ class SignInForm(FlaskForm):
     nom = StringField('Nom', validators=[DataRequired()])
     prenom = StringField('Prenom', validators=[DataRequired()])
     password = PasswordField('Mot de passe', validators=[DataRequired()])
-    password_confirm = PasswordField('Confirmation de mot de passeBLBLALALBALBA', validators=[DataRequired()])
+    password_confirm = PasswordField('Confirmation de mot de passe', validators=[DataRequired()])
     submit = SubmitField("S'inscrire")
 
 # Formulaire de ticket
@@ -149,7 +149,7 @@ class TicketForm(FlaskForm):
     title = StringField('Titre', validators=[DataRequired()])
     description = TextAreaField('Description', validators=[DataRequired()])
     # Champ de fichier
-    attachment = FileField('Fichier', validators=[])
+    attachment = FileField('Fichier', validators=[FileAllowed(['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'jpg', 'jpeg', 'png', 'gif'])])
     #priority = SelectField('Priorité', choices=[('Basse', 'Basse'), ('Moyen', 'Moyen'), ('Haute', 'Haute')])
     submit = SubmitField('Soumettre')
 
