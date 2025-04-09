@@ -1,6 +1,6 @@
 import re
 
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, send_file
 # from errors import page_not_found, internal_server_error  # Import des erreurs
 
 from flask_wtf import FlaskForm # Formulaire
@@ -43,21 +43,21 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=5)
 UPLOAD_ROOT = "attachments"
 
 ########### Base de données
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tickets.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tickets.db'
 #print(f"DB_HOST: {os.getenv('DB_HOST')}")
 #print(f"DB_USER: {os.getenv('DB_USER')}")
 #print(f"DB_PASSWORD: {os.getenv('DB_PASSWORD')}")
 #print(f"DB_NAME: {os.getenv('DB_NAME')}")
 #print(f"DB_PORT: {os.getenv('DB_PORT')}")
-app.config['SQLALCHEMY_DATABASE_URI'] = (
-    f"mysql+mysqlconnector://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}"
-    f"@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
-)
+#app.config['SQLALCHEMY_DATABASE_URI'] = (
+#    f"mysql+mysqlconnector://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}"
+#    f"@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
+#)
 #app.config['SQLALCHEMY_DATABASE_URI'] = (
 #    f"mysql+mysqlconnector://{os.getenv('DB_USER')}@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
 #)
 
-pymysql.install_as_MySQLdb()
+#pymysql.install_as_MySQLdb()
 db = SQLAlchemy(app)
 
 ########### Flask-Login
@@ -316,25 +316,48 @@ def update_ticket(ticket_id):
 def chat(ticket_id):
     ticket = Ticket.query.get_or_404(ticket_id)
 
-    messages = Message.query.filter_by(ticket_id=ticket_id).all()
+    if( current_user.id != ticket.user_id and not current_user.is_admin ):
+        return page_forbidden("test")
+    else:
 
-    form = ChatForm()
-    if form.validate_on_submit():
-        new_message = Message(
-            content=form.content.data,
-            ticket_id=ticket_id,
-            user_id=current_user.id,
-            is_admin = current_user.is_admin,
-        )
-        db.session.add(new_message)
-        db.session.commit()
+        messages = Message.query.filter_by(ticket_id=ticket_id).all()
 
-        return redirect(url_for('chat', ticket_id=ticket_id))
+        form = ChatForm()
+        if form.validate_on_submit():
+            new_message = Message(
+                content=form.content.data,
+                ticket_id=ticket_id,
+                user_id=current_user.id,
+                is_admin = current_user.is_admin,
+            )
+            db.session.add(new_message)
+            db.session.commit()
+
+            return redirect(url_for('chat', ticket_id=ticket_id))
 
 
-    return render_template('chat.html', ticket=ticket, form=form, messages=messages)
+        return render_template('chat.html', ticket=ticket, form=form, messages=messages)
 
 
+@app.route('/download/<int:ticket_id>')
+@login_required
+def download_attachment(ticket_id):
+    ticket = Ticket.query.get_or_404(ticket_id)
+
+    # Vérifier si l'utilisateur a le droit d'accéder à cette pièce jointe
+    if current_user.id != ticket.user_id and not current_user.is_admin:
+        return page_forbidden("Non autorisé à accéder à cette pièce jointe")
+
+    # Vérifier si la pièce jointe existe
+    if not ticket.attachment_path or not os.path.exists(ticket.attachment_path):
+        flash("Pièce jointe non trouvée", "danger")
+        return redirect(url_for('home'))
+
+    # Extraire le nom de fichier original à partir du chemin
+    filename = os.path.basename(ticket.attachment_path)
+
+    # Envoyer le fichier
+    return send_file(ticket.attachment_path, download_name=filename, as_attachment=True)
 
 ########### Déconnexion
 @app.route('/logout')

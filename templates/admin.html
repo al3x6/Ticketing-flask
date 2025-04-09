@@ -37,6 +37,9 @@
                     <br>
                     <p><strong>Priorité :</strong> {{ ticket.priority }}</p>
                     <p><strong>Statut :</strong> {{ ticket.status }}</p>
+                    {% if ticket.attachment_path %}
+                        <p>Pièce jointe: <a href="{{ url_for('download_attachment', ticket_id=ticket.id) }}" target="_blank">Télécharger la pièce jointe</a></p>
+                    {% endif %}
                 </div>
                 <a href="{{ url_for('chat', ticket_id=ticket.id) }}"> 💬 </a>
                 <a href="{{ url_for('update_ticket', ticket_id=ticket.id) }}">✏️</a>
