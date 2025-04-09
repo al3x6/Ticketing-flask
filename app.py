@@ -21,8 +21,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import os
 import time
 from datetime import datetime, timedelta
-#from dotenv import load_dotenv
-#import pymysql
+from dotenv import load_dotenv
+import pymysql
 
 email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
 
