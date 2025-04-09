@@ -8,9 +8,21 @@
 </head>
 
 <body>
+
+    <nav>
+        {% if current_user.is_admin %}
+        <a href="{{ url_for('admin') }}">Accueil</a>
+        {% else %}
+        <a href="{{ url_for('home') }}">Accueil</a>
+        {% endif %}
+        <a href="{{ url_for('logout') }}">Se déconnecter</a>
+    </nav>
+
+
+
     <div class="ticket">
         <div class="ticket-content">
-            <h2>{{ ticket.title }}</h2>
+            <h2>{{ ticket.title }}</h2> <br>
             <p><strong>Description :</strong> {{ ticket.description }}</p>
             <p><strong>Créé par :</strong> {{ ticket.user.nom }} {{ ticket.user.prenom }}</p>
             <p><strong>Mail :</strong> {{ ticket.user.mail }}</p>
@@ -24,10 +36,18 @@
         <h3>Discussion</h3>
         <div class="messages">
             {% for message in messages %}
-                <div class="message">
-                    <strong>{{ message.user.nom }} {{ message.user.prenom }}:</strong>
-                    <p>{{ message.content }}</p>
-                </div>
+                {% if current_user.id == message.user_id %}
+                    <div class="message_self">
+                        <div class="time"> {{ message.timestamp.strftime('%d/%m/%y %H:%M') }}<br></div>
+                            <p> <strong> {{ message.user.nom }} {{ message.user.prenom }}:</strong> {{ message.content }} </p>
+                        </div>
+                {% else %}
+                        <div class="message_other">
+                            <div class="time"> {{ message.timestamp.strftime('%d/%m/%y %H:%M') }}<br></div>
+                            <p> <strong>{{ message.user.nom }} {{ message.user.prenom }}:</strong> {{ message.content }}</p>
+                        </div>
+                {% endif %}
+
             {% endfor %}
         </div>
 

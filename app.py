@@ -103,7 +103,7 @@ class Ticket(db.Model):
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow())
     ticket_id = db.Column(db.Integer, db.ForeignKey('ticket.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)  # Si l'admin a écrit le message
@@ -186,7 +186,6 @@ def login():
     return render_template('login.html', form=form, message="Bienvenue sur Flask")
 
 ###########Inscription
-
 @app.route('/sign_in', methods=['GET', 'POST'])
 def sign_in():
     form = SignInForm()
@@ -224,7 +223,7 @@ def home():
 
 # Soumettre un ticket
 def save_file(file, user_id, ticket_id):
-    # Crée le chemin : attachments/user_3/ticket_12/
+    # Cree le chemin : attachments/user_3/ticket_12/
     folder_path = os.path.join(UPLOAD_ROOT, f"user_{user_id}", f"ticket_{ticket_id}")
     os.makedirs(folder_path, exist_ok=True)
 
@@ -395,3 +394,4 @@ def internal_server_error(error):
 if __name__ == '__main__':
     # subprocess.run(['python', 'build_db.py'], check=True)
     app.run(host='127.0.0.1', port=5000, debug=True, threaded=True)
+    #app.run(host='0.0.0.0', port=5000, debug=True, threaded=True)
