@@ -195,7 +195,7 @@ def login():
                 return redirect(url_for('home'))
         else:
             flash("Nom d'utilisateur ou mot de passe incorrect", "danger")
-    return render_template('login.html', form=form, message="Bienvenue sur Flask")
+    return render_template('login.html', form=form)
 
 ###########Inscription
 @app.route('/sign_in', methods=['GET', 'POST'])
@@ -214,7 +214,7 @@ def sign_in():
             add_user(form.mail.data, form.nom.data, form.prenom.data, form.password.data)
 
             return redirect(url_for('login'))
-    return render_template('sign_in.html', message="Bienvenue sur Flask", form=form)
+    return render_template('sign_in.html', form=form)
 
 ########### Utilisateur
 # Page après connexion utilisateur
