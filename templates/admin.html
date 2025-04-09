@@ -38,8 +38,9 @@
                     <p><strong>Priorité :</strong> {{ ticket.priority }}</p>
                     <p><strong>Statut :</strong> {{ ticket.status }}</p>
                 </div>
-<!--                <a href="{{ url_for('update_ticket', ticket_id=ticket.id) }}">✏️</a>-->
-                <a href="{{ url_for('chat', ticket_id=ticket.id) }}">✏️</a>
+                <a href="{{ url_for('chat', ticket_id=ticket.id) }}"> 💬 </a>
+                <a href="{{ url_for('update_ticket', ticket_id=ticket.id) }}">✏️</a>
+
 
             </div>
         {% endfor %}

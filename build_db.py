@@ -21,11 +21,11 @@ with app.app_context():
 
     # Ajouter 5 utilisateurs
     users = [
-        { "mail": "admin1@mail.com", "nom": "phan", "prenom": "marc",  "is_admin": True, "password": "admin1"},
-        { "mail": "admin2@mail.com", "nom": "arj", "prenom": "alexis",  "is_admin": True, "password": "admin2"},
-        { "mail": "user1@mail.com", "nom": "ohb", "prenom": "amine",  "is_admin": False, "password": "user1"},
-        { "mail": "user2@mail.com", "nom": "boeing", "prenom": "jaques",  "is_admin": False, "password": "user2"},
-        { "mail": "user3@mail.com", "nom": "hello", "prenom": "thibaut",  "is_admin": False, "password": "user3"},
+        { "mail": "admin1@mail.com", "nom": "Dupont", "prenom": "Alice",  "is_admin": True, "password": "admin1"},
+        { "mail": "admin2@mail.com", "nom": "Leroux", "prenom": "Bruno",  "is_admin": True, "password": "admin2"},
+        { "mail": "user1@mail.com", "nom": "Moreau", "prenom": "Carla",  "is_admin": False, "password": "user1"},
+        { "mail": "user2@mail.com", "nom": "Martin", "prenom": "Dylan",  "is_admin": False, "password": "user2"},
+        { "mail": "user3@mail.com", "nom": "Fabre", "prenom": "Emma",  "is_admin": False, "password": "user3"},
     ]
 
     for user_data in users:
@@ -36,11 +36,11 @@ with app.app_context():
 
     # Ajouter 5 tickets associés aux utilisateurs
     tickets = [
-        {"title": "Problème de connexion", "description": "L'utilisateur ne peut pas se connecter.", "user_id": 3},
-        {"title": "Erreur de paiement", "description": "Erreur lors de la validation de paiement.", "user_id": 4},
-        {"title": "Demande de remboursement", "description": "L'utilisateur souhaite être remboursé pour un achat.", "user_id": 3},
-        {"title": "Question sur le produit", "description": "Demande d'information sur un produit.", "user_id": 4},
-        {"title": "Problème de performance", "description": "Le site met trop de temps à charger.", "user_id": 5},
+        {"title": "Tentative de phishing détectée", "description": "Un email suspect a été signalé par un employé. Analyse en cours.", "user_id": 3},
+        {"title": "Infection par ransomware", "description": "Un poste utilisateur affiche une note de rançon. Isolation et triage en cours.", "user_id": 4},
+        {"title": "Fuite de données sensibles", "description": "Des fichiers internes ont été retrouvés sur un forum public.", "user_id": 3},
+        {"title": "Connexion suspecte à distance", "description": "Connexion RDP non autorisée détectée depuis une IP étrangère.", "user_id": 4},
+        {"title": "Logiciel malveillant détecté sur serveur", "description": "Un exécutable inconnu s'exécute sur un serveur de production.", "user_id": 5},
     ]
 
     for ticket_data in tickets:

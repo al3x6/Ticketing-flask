@@ -31,28 +31,27 @@
         </div>
     </div>
 
+    <br>
+
     <!-- Chat Section -->
     <div class="chat-container">
         <h3>Discussion</h3>
         <div class="messages">
             {% for message in messages %}
                 {% if current_user.id == message.user_id %}
-                    <div class="message_self">
-                        <div class="time"> {{ message.timestamp.strftime('%d/%m/%y %H:%M') }}<br></div>
-                            <p> <strong> {{ message.user.nom }} {{ message.user.prenom }}:</strong> {{ message.content }} </p>
-                        </div>
+                        <div class="message_self">
                 {% else %}
                         <div class="message_other">
-                            <div class="time"> {{ message.timestamp.strftime('%d/%m/%y %H:%M') }}<br></div>
-                            <p> <strong>{{ message.user.nom }} {{ message.user.prenom }}:</strong> {{ message.content }}</p>
-                        </div>
                 {% endif %}
+                            <div class="time"> {{ message.timestamp.strftime('%d/%m/%y %H:%M') }}<br></div>
+                            <p> <strong> {{ message.user.nom }} {{ message.user.prenom }}:</strong> {{ message.content }} </p>
+                        </div>
 
             {% endfor %}
         </div>
 
         <!-- Form to send a new message -->
-        <form method="POST" enctype="multipart/form-data">
+        <form class="chatbox" method="POST" enctype="multipart/form-data">
             {{ form.hidden_tag() }}
             <div>
                 <label for="content">Message:</label>

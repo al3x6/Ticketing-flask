@@ -105,25 +105,21 @@ button:hover {
     border-radius: 10px;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
     width: 100%;
-    /*max-width: 800px;*/
-    display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
 
-
 .messages {
     /*display: flex;
     flex-direction: column;
-    align-items: center;
     gap: 10px; */
-
-    max-width: 1000px;        /* ou autre largeur qui correspond à ta zone rouge */
+    align-items: center;
     margin: 0 auto;          /* centre horizontalement */
     padding: 0 20px;         /* espace intérieur gauche/droite */
     display: flex;
     flex-direction: column;
+
 }
 
 
@@ -134,7 +130,7 @@ button:hover {
     word-wrap: break-word;
     overflow-wrap: break-word;
 
-    background-color: #fff;
+    background-color: #8f8f8f;
     padding: 10px;
     border-radius: 10px;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
@@ -150,7 +146,7 @@ button:hover {
     padding: 10px;
     border-radius: 10px;
     margin: 10px;
-    background-color: #fff;
+    background-color: #D3D3D3 ;
     word-wrap: break-word;
     overflow-wrap: break-word;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
@@ -164,10 +160,21 @@ button:hover {
 
 .time {
     font-size: 0.75rem;
-    color: #888;
+    color: #ffffff;
     text-align: left;
     margin-bottom: 0.25rem;
     display: block;
+}
+
+
+.chatbox {
+    background-color: #707070;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    display: inline-block;
+    text-align: left;
+    width: 100%;
 }
 
 .ticket-content {
