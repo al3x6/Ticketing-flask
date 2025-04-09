@@ -27,7 +27,7 @@ import pymysql
 email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
 
 app = Flask(__name__)
-#load_dotenv()
+load_dotenv()
 
 ###################################### Configuration
 ########### Configuration de la clé secrète
